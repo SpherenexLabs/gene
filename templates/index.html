@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Gene Detection - Upload Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: #f9f9ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #f0f0ff;
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 60px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group select,
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            overflow-x: auto;
+            display: block;
+        }
+
+        .preview-table th,
+        .preview-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .preview-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .preview-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .preprocessing-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .dataset-list {
+            list-style: none;
+        }
+
+        .dataset-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .dataset-item h4 {
+            margin-bottom: 5px;
+            color: #667eea;
+        }
+
+        .dataset-item p {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧬 Disease Gene Detection System</h1>
+            <p>Upload and preprocess gene expression datasets for real-time analysis</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('upload')">📤 Upload Data</button>
+            <button class="tab" onclick="switchTab('preprocess')">⚙️ Preprocess</button>
+            <button class="tab" onclick="switchTab('collect')">🌐 Collect from GEO</button>
+            <button class="tab" onclick="switchTab('datasets')">📊 Datasets</button>
+        </div>
+
+        <!-- Upload Tab -->
+        <div id="upload" class="tab-content active">
+            <h2>Upload Gene Expression Dataset</h2>
+            <p style="margin-bottom: 20px; color: #666;">
+                Upload CSV, Excel, or TXT files containing gene expression data. 
+                Supported formats: {{ ', '.join(diseases) }}
+            </p>
+
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📁</div>
+                <h3>Drag & Drop or Click to Upload</h3>
+                <p>Supported formats: CSV, XLSX, XLS, TXT, TSV (Max: 100MB)</p>
+            </div>
+
+            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.txt,.tsv" style="display:none" onchange="handleFileSelect(event)">
+
+            <div class="form-group">
+                <label for="diseaseSelect">Disease Type:</label>
+                <select id="diseaseSelect">
+                    <option value="">Select disease type...</option>
+                    {% for disease in diseases %}
+                    <option value="{{ disease }}">{{ disease.replace('_', ' ').title() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button class="btn btn-primary" onclick="uploadFile()">Upload & Validate</button>
+
+            <div class="loading" id="uploadLoading">
+                <div class="spinner"></div>
+                <p>Uploading and validating...</p>
+            </div>
+
+            <div id="uploadStatus"></div>
+            <div id="dataPreview"></div>
+        </div>
+
+        <!-- Preprocess Tab -->
+        <div id="preprocess" class="tab-content">
+            <h2>Preprocess Dataset</h2>
+            <p style="margin-bottom: 20px; color: #666;">
+                Configure preprocessing options and prepare data for machine learning
+            </p>
+
+            <div class="form-group">
+                <label for="preprocessFile">Select Uploaded File:</label>
+                <select id="preprocessFile">
+                    <option value="">Select file...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="labelColumn">Label Column Name:</label>
+                <input type="text" id="labelColumn" placeholder="e.g., disease_type, class, label">
+            </div>
+
+            <div class="preprocessing-options">
+                <div class="form-group">
+                    <label for="missingStrategy">Missing Values:</label>
+                    <select id="missingStrategy">
+                        <option value="mean">Mean Imputation</option>
+                        <option value="median">Median Imputation</option>
+                        <option value="knn">KNN Imputation</option>
+                        <option value="drop">Drop Rows</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="outlierMethod">Outlier Detection:</label>
+                    <select id="outlierMethod">
+                        <option value="iqr">IQR Method</option>
+                        <option value="zscore">Z-Score Method</option>
+                        <option value="isolation_forest">Isolation Forest</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="normalization">Normalization:</label>
+                    <select id="normalization">
+                        <option value="zscore">Z-Score (Standard Scaler)</option>
+                        <option value="minmax">Min-Max Scaler</option>
+                        <option value="robust">Robust Scaler</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="testSize">Test Size (%):</label>
+                    <input type="number" id="testSize" value="20" min="5" max="50">
+                </div>
+
+                <div class="form-group">
+                    <label for="valSize">Validation Size (%):</label>
+                    <input type="number" id="valSize" value="10" min="5" max="30">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="preprocessData()">Run Preprocessing</button>
+            <button class="btn btn-success" onclick="runMLPipeline()" style="margin-left: 10px; background: #28a745;">🚀 Run Complete ML Analysis</button>
+
+            <div class="loading" id="preprocessLoading">
+                <div class="spinner"></div>
+                <p id="loadingMessage">Processing data...</p>
+                <p id="loadingSubtext" style="font-size: 12px; color: #888; margin-top: 5px;">This may take 2-5 minutes for large datasets</p>
+            </div>
+
+            <div id="preprocessStatus"></div>
+            
+            <!-- Visualization Results Container -->
+            <div id="visualizationsContainer" style="display: none; margin-top: 30px;">
+                <h3>📊 Model Performance Visualizations</h3>
+                <div id="visualizationsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <!-- Visualizations will be inserted here -->
+                </div>
+                
+                <div id="modelPerformanceTable" style="margin-top: 20px;">
+                    <!-- Performance table will be inserted here -->
+                </div>
+                
+                <div id="exportDownloads" style="margin-top: 30px; display: none;">
+                    <h3>📥 Download Results</h3>
+                    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <p style="margin-bottom: 15px; color: #666;">Download your analysis results in various formats:</p>
+                        <div id="downloadLinks" style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <!-- Download links will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ML Analysis Results -->
+            <div id="mlResults" style="display: none; margin-top: 30px;">
+                <h3>📊 ML Analysis Results</h3>
+                <div id="mlSummary" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 15px 0;"></div>
+                
+                <h4>🎯 Model Performance</h4>
+                <div id="modelPerformance" style="margin: 15px 0;"></div>
+                
+                <h4>🧬 Top Selected Genes</h4>
+                <div id="topGenes" style="margin: 15px 0;"></div>
+                
+                <h4>📈 Visualizations</h4>
+                <div id="visualizationsList" style="margin: 15px 0;"></div>
+                
+                <h4>📁 Export Files</h4>
+                <div id="exportsList" style="margin: 15px 0;"></div>
+            </div>
+        </div>
+
+        <!-- Collect from GEO Tab -->
+        <div id="collect" class="tab-content">
+            <h2>Collect from GEO Database</h2>
+            
+            <div style="background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <h3 style="margin-top: 0; color: #0c5460;">🚀 GEO Download with Auto Binary Classification</h3>
+                <p style="color: #0c5460; margin-bottom: 10px;">
+                    Now using <strong>HTTP streaming with automatic retry</strong> for reliable downloads!
+                </p>
+                <ul style="color: #0c5460; margin-bottom: 10px;">
+                    <li>✅ Chunked download (1MB at a time) - more reliable</li>
+                    <li>✅ Automatic retry (3 attempts) on failure</li>
+                    <li>✅ Progress logging every 5MB downloaded</li>
+                    <li>✅ Selects top 100 most variable genes</li>
+                    <li>✅ 3-minute timeout per attempt</li>
+                    <li>🎯 <strong>NEW: Auto-creates binary classification (diseased + healthy)</strong></li>
+                    <li>📊 Enables proper ROC-AUC calculation with both classes</li>
+                </ul>
+                <p style="color: #0c5460; font-weight: bold;">
+                    Downloads typically take 1-3 minutes. System automatically creates healthy samples if not present in GEO data.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="geoDisease">Disease Type:</label>
+                <select id="geoDisease" onchange="updateRecommendedDatasets()">
+                    {% for disease in diseases %}
+                    <option value="{{ disease }}">{{ disease.replace('_', ' ').title() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="recommendedDatasets">Recommended GEO Datasets:</label>
+                <select id="recommendedDatasets" onchange="selectRecommendedDataset()" style="background-color: #e8f5e9; border: 2px solid #4caf50;">
+                    <option value="">-- Select a recommended dataset --</option>
+                </select>
+                <small id="datasetInfo" style="color: #666; display: block; margin-top: 5px;"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="geoAccession">Or Enter Custom GEO Accession:</label>
+                <input type="text" id="geoAccession" placeholder="e.g., GSE2034">
+                <small style="color: #666;">
+                    Search for more at <a href="https://www.ncbi.nlm.nih.gov/geo/" target="_blank">NCBI GEO</a>
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="minSamples">Minimum Samples Required:</label>
+                <input type="number" id="minSamples" value="100" min="10" max="1000">
+                <small style="color: #666;">Dataset must have at least this many samples</small>
+            </div>
+
+            <div class="form-group">
+                <label for="maxGenes">Maximum Genes to Keep:</label>
+                <input type="number" id="maxGenes" value="100" min="50" max="500">
+                <small style="color: #666;">Top N most variable genes (faster processing)</small>
+            </div>
+
+            <button id="geoDownloadBtn" class="btn btn-primary" onclick="collectGEO()">🔬 Download from GEO</button>
+
+            <div class="loading" id="geoLoading">
+                <div class="spinner"></div>
+                <p id="geoLoadingText">🌐 Downloading from NCBI GEO via HTTPS streaming...<br>
+                ⏱️ Large datasets take 1-3 minutes. Please be patient...<br>
+                🔄 Will auto-retry 3 times if needed</p>
+            </div>
+
+            <div id="geoStatus"></div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 4px;">
+                <p style="margin: 0; color: #856404;">
+                    💡 <strong>Tip:</strong> If download fails, the system will automatically retry 3 times. 
+                    Check the browser console (F12) for detailed progress logs.
+                </p>
+            </div>
+
+            <details style="margin-top: 20px;">
+                <summary style="cursor: pointer; font-weight: bold; color: #333; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                    📚 Alternative: Use Pre-Loaded Sample Data
+                </summary>
+                <div style="padding: 15px; background: #f8f9fa; margin-top: 10px; border-radius: 4px;">
+                    <p><strong>If you want to test the system immediately:</strong></p>
+                    <ol>
+                        <li>Go to <strong>"Preprocess"</strong> tab</li>
+                        <li>Select: <strong>sample_gene_expression_with_labels.csv</strong></li>
+                        <li>Label column: <strong>disease_type</strong></li>
+                        <li>Click: <strong>Run Complete ML Analysis</strong></li>
+                    </ol>
+                    <p style="margin-top: 10px;">
+                        This sample has 200 samples, 100 genes, 3 classes - perfect for testing!
+                    </p>
+                </div>
+            </details>
+        </div>
+
+        <!-- Datasets Tab -->
+        <div id="datasets" class="tab-content">
+            <h2>Available Datasets</h2>
+            <button class="btn btn-secondary" onclick="refreshDatasets()">🔄 Refresh</button>
+
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be loaded here -->
+            </div>
+
+            <h3 style="margin-top: 30px;">Uploaded Files</h3>
+            <ul class="dataset-list" id="uploadedList">
+                <li>Loading...</li>
+            </ul>
+
+            <h3 style="margin-top: 30px;">Processed Datasets</h3>
+            <ul class="dataset-list" id="processedList">
+                <li>Loading...</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFilePath = '';
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Find the button that triggered this (by tabName)
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(btn => {
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`switchTab('${tabName}')`)) {
+                    btn.classList.add('active');
+                }
+            });
+            // Show the correct tab content
+            const tabContent = document.getElementById(tabName);
+            if (tabContent) tabContent.classList.add('active');
+
+            if (tabName === 'datasets') {
+                if (typeof refreshDatasets === 'function') refreshDatasets();
+            }
+        }
+
+        // Drag and drop
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('fileInput').files = files;
+                handleFileSelect({target: {files: files}});
+            }
+        });
+
+        // Handle file selection
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.querySelector('.upload-area h3').textContent = `Selected: ${file.name}`;
+            }
+        }
+
+        // Upload file
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const diseaseSelect = document.getElementById('diseaseSelect');
+            
+            if (!fileInput.files[0]) {
+                showStatus('uploadStatus', 'Please select a file', 'error');
+                return;
+            }
+            
+            if (!diseaseSelect.value) {
+                showStatus('uploadStatus', 'Please select a disease type', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('disease_type', diseaseSelect.value);
+            
+            showLoading('uploadLoading', true);
+            showStatus('uploadStatus', '', '');
+            
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                showLoading('uploadLoading', false);
+                
+                if (data.success) {
+                    uploadedFilePath = data.filepath;
+                    let message = '✅ File uploaded and validated successfully!';
+                    
+                    // Add message for large datasets
+                    if (data.validation.is_large_dataset || data.preview.is_large) {
+                        message += `\n\n📊 Large dataset detected: ${data.preview.shape[0]} samples × ${data.preview.shape[1]} features`;
+                        message += '\n⏱️ Processing will take 2-5 minutes. Please be patient.';
+                    }
+                    
+                    // Add any validation warnings
+                    if (data.validation.message) {
+                        message += `\n\n${data.validation.message}`;
+                    }
+                    
+                    showStatus('uploadStatus', message, 'success');
+                    displayPreview(data.preview, data.validation);
+                    updatePreprocessFileList();
+                } else {
+                    showStatus('uploadStatus', `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showLoading('uploadLoading', false);
+                showStatus('uploadStatus', `❌ Upload failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Preprocess data
+        async function preprocessData() {
+            const fileSelect = document.getElementById('preprocessFile');
+            const labelColumn = document.getElementById('labelColumn').value;
+            const diseaseType = document.getElementById('diseaseSelect').value;
+            
+            // Clear previous results
+            document.getElementById('preprocessStatus').innerHTML = '';
+            document.getElementById('visualizationsContainer').style.display = 'none';
+            
+            if (!fileSelect.value) {
+                showStatus('preprocessStatus', 'Please select a file', 'error');
+                return;
+            }
+            
+            if (!labelColumn) {
+                showStatus('preprocessStatus', 'Please enter label column name', 'error');
+                return;
+            }
+            
+            // Get filepath from data attribute
+            const selectedOption = fileSelect.options[fileSelect.selectedIndex];
+            const filepath = selectedOption.getAttribute('data-path');
+            
+            const requestData = {
+                filepath: filepath,
+                label_column: labelColumn,
+                disease_type: diseaseType || 'unknown',
+                missing_strategy: document.getElementById('missingStrategy').value,
+                outlier_method: document.getElementById('outlierMethod').value,
+                normalization: document.getElementById('normalization').value,
+                test_size: parseFloat(document.getElementById('testSize').value) / 100,
+                validation_size: parseFloat(document.getElementById('valSize').value) / 100
+            };
+            
+            showLoading('preprocessLoading', true);
+            showStatus('preprocessStatus', '⏳ Processing large dataset... This may take 2-5 minutes. Please wait...', 'info');
+            
+            try {
+                // Set a 10-minute timeout for large datasets
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minutes
+                
+                const response = await fetch('/api/preprocess', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(requestData),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                const data = await response.json();
+                showLoading('preprocessLoading', false);
+                
+                if (data.success) {
+                    let statusMessage = `✅ Preprocessing completed!\n\n${data.report}`;
+                    
+                    // Show configuration applied
+                    if (data.config_applied) {
+                        const configBox = document.createElement('div');
+                        configBox.style.cssText = 'background: #e7f3ff; border-left: 4px solid #2196f3; padding: 15px; margin: 15px 0; border-radius: 5px;';
+                        configBox.innerHTML = `
+                            <h4 style="margin: 0 0 10px 0; color: #1976d2;">⚙️ Configuration Applied:</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                                <div><strong>Missing Values:</strong> ${data.config_applied.missing_values}</div>
+                                <div><strong>Outlier Detection:</strong> ${data.config_applied.outlier_method}</div>
+                                <div><strong>Normalization:</strong> ${data.config_applied.normalization}</div>
+                                <div><strong>Test Size:</strong> ${(data.config_applied.test_size * 100).toFixed(0)}%</div>
+                            </div>
+                        `;
+                        document.getElementById('preprocessStatus').appendChild(configBox);
+                    }
+                    
+                    // Show warning if single class detected
+                    if (data.warning) {
+                        const warningBox = document.createElement('div');
+                        warningBox.style.cssText = 'background: #fff3cd; border: 2px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 8px; font-family: monospace;';
+                        warningBox.innerHTML = `
+                            <h3 style="color: #856404; margin-top: 0;">⚠️ Dataset Classification Issue</h3>
+                            <pre style="color: #856404; white-space: pre-wrap; background: #fff; padding: 15px; border-radius: 5px;">${data.warning}</pre>
+                            <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-left: 4px solid #28a745; color: #155724;">
+                                <strong>✅ Quick Fix:</strong> Go to "View Datasets" tab and load "sample_gene_expression_with_labels.csv" which has both diseased and healthy samples!
+                            </div>
+                        `;
+                        document.getElementById('preprocessStatus').appendChild(warningBox);
+                    }
+                    
+                    // Display visualizations if available
+                    if (data.visualizations && data.visualizations.length > 0) {
+                        statusMessage += '\n\n📊 Visualizations generated! See below.';
+                        if (data.exports && Object.keys(data.exports).length > 0) {
+                            statusMessage += '\n📥 Download links available below.';
+                        }
+                        displayVisualizations(data.visualizations, data.model_performance, data.exports);
+                    } else {
+                        // No visualizations generated - show warning
+                        const noVizBox = document.createElement('div');
+                        noVizBox.style.cssText = 'background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 5px;';
+                        noVizBox.innerHTML = `
+                            <h4 style="margin: 0 0 10px 0; color: #856404;">⚠️ No Visualizations Generated</h4>
+                            <p style="margin: 0; color: #856404;">
+                                Preprocessing completed but visualization generation failed. 
+                                Check the browser console (F12) and terminal logs for details.
+                            </p>
+                        `;
+                        document.getElementById('preprocessStatus').appendChild(noVizBox);
+                        console.error('Visualizations data:', data.visualizations);
+                    }
+                    
+                    showStatus('preprocessStatus', statusMessage, 'success');
+                } else {
+                    showStatus('preprocessStatus', `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showLoading('preprocessLoading', false);
+                if (error.name === 'AbortError') {
+                    showStatus('preprocessStatus', `❌ Processing timed out. Dataset may be too large.`, 'error');
+                } else {
+                    showStatus('preprocessStatus', `❌ Preprocessing failed: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Run Complete ML Pipeline
+        async function runMLPipeline() {
+            const fileSelect = document.getElementById('preprocessFile');
+            const labelColumn = document.getElementById('labelColumn').value;
+            
+            if (!fileSelect.value) {
+                showStatus('preprocessStatus', 'Please select a file', 'error');
+                return;
+            }
+            
+            if (!labelColumn) {
+                showStatus('preprocessStatus', 'Please enter label column name', 'error');
+                return;
+            }
+            
+            // Get filepath from data attribute
+            const selectedOption = fileSelect.options[fileSelect.selectedIndex];
+            const filepath = selectedOption.getAttribute('data-path');
+            
+            const requestData = {
+                filepath: filepath,
+                label_column: labelColumn,
+                n_features: 100,  // Top 100 genes
+                models: ['random_forest', 'svm', 'gradient_boosting'],
+                tune_hyperparameters: false,  // Set to true for better results but slower
+                class_names: []
+            };
+            
+            showLoading('preprocessLoading', true);
+            document.getElementById('loadingMessage').textContent = 'Running ML analysis...';
+            document.getElementById('loadingSubtext').textContent = 'Step 1/5: Loading data...';
+            showStatus('preprocessStatus', '🚀 Running complete ML analysis... This may take a few minutes.', 'info');
+            
+            // Add progress tracking
+            let progressInterval = setInterval(() => {
+                const messages = [
+                    'Step 1/5: Loading and cleaning data...',
+                    'Step 2/5: Removing outliers and normalizing...',
+                    'Step 3/5: Selecting important features...',
+                    'Step 4/5: Training machine learning models...',
+                    'Step 5/5: Generating results and visualizations...'
+                ];
+                const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+                document.getElementById('loadingSubtext').textContent = randomMsg;
+            }, 3000);
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
+                
+                const response = await fetch('/api/run_ml_pipeline', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(requestData),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                clearInterval(progressInterval);
+                
+                const data = await response.json();
+                showLoading('preprocessLoading', false);
+                
+                if (data.success) {
+                    displayMLResults(data);
+                    showStatus('preprocessStatus', 
+                        `✅ ML Analysis completed successfully!<br>Best Model: ${data.summary.best_model} (Accuracy: ${(data.summary.best_accuracy * 100).toFixed(2)}%)`, 
+                        'success');
+                } else {
+                    showStatus('preprocessStatus', `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                clearInterval(progressInterval);
+                showLoading('preprocessLoading', false);
+                if (error.name === 'AbortError') {
+                    showStatus('preprocessStatus', '❌ Request timeout. The dataset may be too large. Try with a smaller file or contact support.', 'error');
+                } else {
+                    showStatus('preprocessStatus', `❌ ML Analysis failed: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        // Display ML Results
+        function displayMLResults(data) {
+            const mlResults = document.getElementById('mlResults');
+            mlResults.style.display = 'block';
+            
+            // Summary
+            const summary = document.getElementById('mlSummary');
+            summary.innerHTML = `
+                <h4>📈 Summary</h4>
+                <p><strong>Best Model:</strong> ${data.summary.best_model.toUpperCase()}</p>
+                <p><strong>Accuracy:</strong> ${(data.summary.best_accuracy * 100).toFixed(2)}%</p>
+                <p><strong>Features Selected:</strong> ${data.summary.n_features_selected} genes</p>
+                <p><strong>Models Trained:</strong> ${data.summary.models_trained}</p>
+                <p><strong>Output Directory:</strong> ${data.output_directory}</p>
+            `;
+            
+            // Model Performance Table
+            const modelPerf = document.getElementById('modelPerformance');
+            let perfHTML = '<table class="preview-table"><thead><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>ROC-AUC</th></tr></thead><tbody>';
+            for (const [model, metrics] of Object.entries(data.model_performance)) {
+                perfHTML += `<tr>
+                    <td><strong>${model.toUpperCase()}</strong></td>
+                    <td>${(metrics.accuracy * 100).toFixed(2)}%</td>
+                    <td>${(metrics.precision * 100).toFixed(2)}%</td>
+                    <td>${(metrics.recall * 100).toFixed(2)}%</td>
+                    <td>${(metrics.f1 * 100).toFixed(2)}%</td>
+                    <td>${(metrics.roc_auc * 100).toFixed(2)}%</td>
+                </tr>`;
+            }
+            perfHTML += '</tbody></table>';
+            modelPerf.innerHTML = perfHTML;
+            
+            // Top Genes
+            const topGenes = document.getElementById('topGenes');
+            topGenes.innerHTML = `
+                <p><strong>Method:</strong> ${data.feature_selection.method}</p>
+                <ol>${data.feature_selection.top_10_genes.map(gene => `<li>${gene}</li>`).join('')}</ol>
+            `;
+            
+            // Visualizations
+            const vizList = document.getElementById('visualizationsList');
+            if (data.visualizations.length > 0) {
+                vizList.innerHTML = '<ul>' + data.visualizations.map(viz => 
+                    `<li>📊 ${viz.name}</li>`
+                ).join('') + '</ul>';
+            } else {
+                vizList.innerHTML = '<p>No visualizations generated yet.</p>';
+            }
+            
+            // Exports
+            const exportsList = document.getElementById('exportsList');
+            if (data.exports.length > 0) {
+                exportsList.innerHTML = '<ul>' + data.exports.map(file => {
+                    const icon = file.type === 'pdf' ? '📄' : file.type === 'xlsx' ? '📊' : '📋';
+                    return `<li>${icon} ${file.name} (${file.type.toUpperCase()})</li>`;
+                }).join('') + '</ul>';
+            } else {
+                exportsList.innerHTML = '<p>No export files generated yet.</p>';
+            }
+        }
+
+        // Collect from GEO
+        async function collectGEO() {
+            const accession = document.getElementById('geoAccession').value;
+            const disease = document.getElementById('geoDisease').value;
+            const minSamples = parseInt(document.getElementById('minSamples').value) || 100;
+            const maxGenes = parseInt(document.getElementById('maxGenes').value) || 100;
+
+            if (!accession) {
+                showStatus('geoStatus', 'Please enter GEO accession number', 'error');
+                return;
+            }
+
+            if (!disease) {
+                showStatus('geoStatus', 'Please select a disease type', 'error');
+                return;
+            }
+
+            // Disable button and show loading
+            const downloadBtn = document.getElementById('geoDownloadBtn');
+            if (downloadBtn) downloadBtn.disabled = true;
+            showLoading('geoLoading', true);
+            showStatus('geoStatus', '⏳ Downloading from GEO... This may take 1-3 minutes. Please wait...', 'info');
+
+            try {
+                // Set timeout for 10 minutes (large datasets can take time)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 600000);
+
+                const payload = {
+                    geo_accession: accession,
+                    disease_type: disease,
+                    min_samples: minSamples,
+                    max_genes: maxGenes
+                };
+                console.log('collectGEO payload:', payload);
+
+                const response = await fetch('/api/collect_geo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (parseErr) {
+                    const text = await response.text().catch(() => '');
+                    throw new Error(`Server returned status ${response.status}: ${text || response.statusText}`);
+                }
+
+                showLoading('geoLoading', false);
+                if (response.ok && data && data.success) {
+                    showStatus('geoStatus',
+                        `✅ Successfully downloaded ${data.geo_accession}!<br>` +
+                        `📊 Dataset Info: Samples: ${data.shape[0]}, Genes: ${data.shape[1]}<br>` +
+                        `Go to "Preprocess" tab to analyze this data!`,
+                        'success');
+                    // Refresh dataset list
+                    await refreshDatasets();
+                } else {
+                    const msg = data && data.error ? data.error : `Server error ${response.status}`;
+                    showStatus('geoStatus', `❌ Error: ${msg}`, 'error');
+                }
+            } catch (error) {
+                showLoading('geoLoading', false);
+                const downloadBtn2 = document.getElementById('geoDownloadBtn');
+                if (downloadBtn2) downloadBtn2.disabled = false;
+                if (error.name === 'AbortError') {
+                    showStatus('geoStatus', '❌ Download timed out (>10 min). Try a smaller dataset or reduce max_genes.', 'error');
+                } else {
+                    showStatus('geoStatus', `❌ Collection failed: ${error.message}`, 'error');
+                }
+                const downloadBtn3 = document.getElementById('geoDownloadBtn');
+                if (downloadBtn3) downloadBtn3.disabled = false;
+            }
+
+            const downloadBtn4 = document.getElementById('geoDownloadBtn');
+            if (downloadBtn4) downloadBtn4.disabled = false;
+        }
+
+        // Refresh datasets
+        async function refreshDatasets() {
+            try {
+                const [datasetsResponse, statsResponse] = await Promise.all([
+                    fetch('/api/datasets'),
+                    fetch('/api/statistics')
+                ]);
+                
+                const datasets = await datasetsResponse.json();
+                const stats = await statsResponse.json();
+                
+                // Display stats
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <h3>${stats.total_uploaded}</h3>
+                        <p>Uploaded Files</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${stats.total_processed}</h3>
+                        <p>Processed Datasets</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${Object.keys(stats.diseases).length}</h3>
+                        <p>Disease Types</p>
+                    </div>
+                `;
+                
+                // Display uploaded files
+                const uploadedList = document.getElementById('uploadedList');
+                if (datasets.uploaded.length === 0) {
+                    uploadedList.innerHTML = '<li class="dataset-item"><p>No uploaded files</p></li>';
+                } else {
+                    uploadedList.innerHTML = datasets.uploaded.map(file => `
+                        <li class="dataset-item">
+                            <h4>${file.filename}</h4>
+                            <p>Size: ${(file.size / 1024).toFixed(2)} KB | Modified: ${new Date(file.modified).toLocaleString()}</p>
+                        </li>
+                    `).join('');
+                }
+                
+                // Display processed datasets
+                const processedList = document.getElementById('processedList');
+                if (datasets.processed.length === 0) {
+                    processedList.innerHTML = '<li class="dataset-item"><p>No processed datasets</p></li>';
+                } else {
+                    processedList.innerHTML = datasets.processed.map(file => `
+                        <li class="dataset-item">
+                            <h4>${file.disease.replace('_', ' ').toUpperCase()}: ${file.filename}</h4>
+                            <p>Size: ${(file.size / 1024).toFixed(2)} KB | Modified: ${new Date(file.modified).toLocaleString()}</p>
+                        </li>
+                    `).join('');
+                }
+                
+                // Populate preprocess file dropdown
+                const preprocessFileSelect = document.getElementById('preprocessFile');
+                if (preprocessFileSelect) {
+                    preprocessFileSelect.innerHTML = '<option value="">Select file...</option>';
+                    datasets.uploaded.forEach(file => {
+                        const option = document.createElement('option');
+                        option.value = file.filename;
+                        option.textContent = file.filename;
+                        // Store full path as data attribute
+                        option.setAttribute('data-path', `uploads/${file.filename}`);
+                        preprocessFileSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error refreshing datasets:', error);
+            }
+        }
+
+        // Helper functions
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message.replace(/\n/g, '<br>')}</div>`;
+        }
+
+        function showLoading(elementId, show) {
+            const element = document.getElementById(elementId);
+            element.classList.toggle('active', show);
+        }
+
+        function displayPreview(preview, validation) {
+            const previewDiv = document.getElementById('dataPreview');
+            let html = `
+                <h3>Dataset Preview</h3>
+                <p><strong>Shape:</strong> ${preview.shape[0]} rows × ${preview.shape[1]} columns</p>
+            `;
+            
+            // Add info for large datasets
+            if (preview.is_large || preview.shape[1] > 1000) {
+                html += `<div class="status info">
+                    <strong>📊 Large Dataset Detected</strong><br>
+                    This dataset has ${preview.shape[1].toLocaleString()} features. Processing optimizations are enabled.<br>
+                    Expected processing time: 2-5 minutes.
+                </div>`;
+            }
+            
+            // Show warnings if any
+            if (validation.warnings && validation.warnings.length > 0) {
+                html += `<div class="status info"><strong>⚠️ Warnings:</strong><br>${validation.warnings.join('<br>')}</div>`;
+            }
+            
+            // Show issues if any (but don't block if is_valid is still true)
+            if (validation.issues && validation.issues.length > 0 && !validation.is_valid) {
+                html += `<div class="status error"><strong>❌ Issues:</strong><br>${validation.issues.join('<br>')}</div>`;
+            }
+            
+            html += `<p><strong>Preview (first 5 rows, first ${preview.columns.length} columns):</strong></p>`;
+            html += '<table class="preview-table"><thead><tr>';
+            preview.columns.forEach(col => {
+                html += `<th>${col}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            
+            preview.head.forEach(row => {
+                html += '<tr>';
+                preview.columns.forEach(col => {
+                    html += `<td>${row[col] || ''}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            
+            if (preview.n_columns > preview.columns.length) {
+                html += `<p style="color: #666; font-style: italic;">... and ${preview.n_columns - preview.columns.length} more columns</p>`;
+            }
+            
+            previewDiv.innerHTML = html;
+        }
+
+        function updatePreprocessFileList() {
+            // Refresh the file list in preprocess tab
+            refreshDatasets();
+        }
+        
+        // Auto-detect label column when file is selected
+        async function detectLabelColumn(filepath) {
+            try {
+                const response = await fetch('/api/detect_label_column', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({filepath: filepath})
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const labelInput = document.getElementById('labelColumn');
+                    
+                    if (data.label_column) {
+                        labelInput.value = data.label_column;
+                        labelInput.placeholder = 'e.g., disease_type, class, label';
+                        labelInput.style.borderColor = '#28a745';
+                        setTimeout(() => {
+                            labelInput.style.borderColor = '';
+                        }, 2000);
+                        // Clear any previous warnings
+                        showStatus('preprocessStatus', '', '');
+                    } else if (data.is_gene_expression_only) {
+                        // CLEAR the field for gene expression data without labels
+                        labelInput.value = '';
+                        labelInput.placeholder = '⚠️ No labels found - Upload a different file';
+                        labelInput.style.borderColor = '#dc3545';
+                        
+                        showStatus('preprocessStatus', 
+                            '⚠️ <strong>This dataset has NO disease labels!</strong><br><br>' +
+                            'The file contains only gene expression values without any classification labels.<br><br>' +
+                            '<strong>To use ML analysis:</strong><br>' +
+                            '1. <strong>Use the sample dataset instead:</strong> Refresh this page and select <code>sample_data_20251117_sample_gene_expression_with_labels.csv</code><br>' +
+                            '2. Or upload a different file that includes a disease/class label column<br><br>' +
+                            '<strong>Current file structure:</strong><br>' +
+                            `• ${data.n_columns} sample columns (GSM IDs)<br>` +
+                            '• Gene IDs as rows<br>' +
+                            '• All numeric expression values only', 
+                            'error');
+                    } else {
+                        // No label detected but not gene expression format
+                        labelInput.value = '';
+                        labelInput.placeholder = 'Enter label column name manually';
+                    }
+                }
+            } catch (error) {
+                console.error('Error detecting label column:', error);
+            }
+        }
+        
+        // Handle file selection in preprocess dropdown
+        document.addEventListener('DOMContentLoaded', function() {
+            const preprocessFileSelect = document.getElementById('preprocessFile');
+            if (preprocessFileSelect) {
+                preprocessFileSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    if (selectedOption && selectedOption.value) {
+                        const filepath = selectedOption.getAttribute('data-path');
+                        if (filepath) {
+                            detectLabelColumn(filepath);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Display visualizations in grid format
+        function displayVisualizations(visualizations, modelPerformance, exports) {
+            const container = document.getElementById('visualizationsContainer');
+            const grid = document.getElementById('visualizationsGrid');
+            const perfTable = document.getElementById('modelPerformanceTable');
+            const exportSection = document.getElementById('exportDownloads');
+            const downloadLinks = document.getElementById('downloadLinks');
+            
+            if (!visualizations || visualizations.length === 0) {
+                return;
+            }
+            
+            // Show container
+            container.style.display = 'block';
+            
+            // Display visualization images with cache-busting timestamp
+            const cacheBuster = new Date().getTime();
+            grid.innerHTML = visualizations.map(viz => `
+                <div class="viz-card" style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h4 style="margin: 0 0 15px 0; color: #333; font-size: 16px;">${viz.name}</h4>
+                    <img src="${viz.url}?t=${cacheBuster}" alt="${viz.name}" style="width: 100%; border-radius: 5px; cursor: pointer;" 
+                         onclick="window.open('${viz.url}?t=${cacheBuster}', '_blank')">
+                    <p style="margin: 10px 0 0 0; font-size: 12px; color: #666; text-align: center;">
+                        Click to view full size
+                    </p>
+                </div>
+            `).join('');
+            
+            // Display model performance table
+            if (modelPerformance && modelPerformance.length > 0) {
+                perfTable.innerHTML = `
+                    <h4 style="margin: 20px 0 10px 0;">🎯 Model Performance Metrics</h4>
+                    <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <thead>
+                            <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <th style="padding: 12px; text-align: left;">Model</th>
+                                <th style="padding: 12px; text-align: center;">Accuracy</th>
+                                <th style="padding: 12px; text-align: center;">Precision</th>
+                                <th style="padding: 12px; text-align: center;">Recall</th>
+                                <th style="padding: 12px; text-align: center;">F1-Score</th>
+                                <th style="padding: 12px; text-align: center;">ROC-AUC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${modelPerformance.map((model, idx) => `
+                                <tr style="background: ${idx % 2 === 0 ? '#f8f9fa' : 'white'}; border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 10px; font-weight: bold;">${model.Model}</td>
+                                    <td style="padding: 10px; text-align: center;">${model.Accuracy.toFixed(4)}</td>
+                                    <td style="padding: 10px; text-align: center;">${model.Precision.toFixed(4)}</td>
+                                    <td style="padding: 10px; text-align: center;">${model.Recall.toFixed(4)}</td>
+                                    <td style="padding: 10px; text-align: center;">${model['F1-Score'].toFixed(4)}</td>
+                                    <td style="padding: 10px; text-align: center; font-weight: bold; color: #28a745;">${model['ROC-AUC'].toFixed(4)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+            
+            // Display download links
+            if (exports && Object.keys(exports).length > 0) {
+                exportSection.style.display = 'block';
+                
+                const linkButtons = [];
+                
+                if (exports.gene_impact_csv) {
+                    linkButtons.push(`
+                        <a href="${exports.gene_impact_csv}" download class="btn btn-primary" 
+                           style="background: #28a745; text-decoration: none; padding: 12px 20px; border-radius: 5px; color: white; display: inline-flex; align-items: center; gap: 8px;">
+                            📊 Gene Impact Table (CSV)
+                        </a>
+                    `);
+                }
+                
+                if (exports.model_comparison_csv) {
+                    linkButtons.push(`
+                        <a href="${exports.model_comparison_csv}" download class="btn btn-primary" 
+                           style="background: #17a2b8; text-decoration: none; padding: 12px 20px; border-radius: 5px; color: white; display: inline-flex; align-items: center; gap: 8px;">
+                            🎯 Model Comparison (CSV)
+                        </a>
+                    `);
+                }
+                
+                if (exports.excel) {
+                    linkButtons.push(`
+                        <a href="${exports.excel}" download class="btn btn-success" 
+                           style="background: #218838; text-decoration: none; padding: 12px 20px; border-radius: 5px; color: white; display: inline-flex; align-items: center; gap: 8px;">
+                            📑 Complete Results (Excel)
+                        </a>
+                    `);
+                }
+                
+                if (exports.pdf) {
+                    linkButtons.push(`
+                        <a href="${exports.pdf}" download class="btn btn-danger" 
+                           style="background: #dc3545; text-decoration: none; padding: 12px 20px; border-radius: 5px; color: white; display: inline-flex; align-items: center; gap: 8px;">
+                            📄 Report (PDF)
+                        </a>
+                    `);
+                }
+                
+                downloadLinks.innerHTML = linkButtons.join('');
+            }
+            
+            // Scroll to visualizations
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // GEO Dataset recommendations by disease
+        // Datasets will be loaded from server dynamically
+        let GEO_DATASETS = {};
+
+        // Load datasets from server
+        async function loadGEODatasets() {
+            try {
+                const response = await fetch('/api/geo_datasets');
+                if (response.ok) {
+                    GEO_DATASETS = await response.json();
+                    console.log('Loaded GEO datasets from server:', GEO_DATASETS);
+                } else {
+                    console.error('Failed to load GEO datasets');
+                }
+            } catch (error) {
+                console.error('Error loading GEO datasets:', error);
+            }
+        }
+
+        // Load datasets on page load
+        loadGEODatasets();
+
+        function updateRecommendedDatasets() {
+            const disease = document.getElementById('geoDisease').value;
+            const select = document.getElementById('recommendedDatasets');
+            const infoDiv = document.getElementById('datasetInfo');
+            
+            const datasets = GEO_DATASETS[disease] || [];
+            
+            // Clear and populate dropdown
+            select.innerHTML = '<option value="">-- Select a recommended dataset --</option>';
+            datasets.forEach(ds => {
+                const option = document.createElement('option');
+                option.value = ds.accession;
+                option.textContent = `${ds.accession} - ${ds.description}`;
+                option.dataset.description = ds.description;
+                option.dataset.samples = ds.samples;
+                select.appendChild(option);
+            });
+            
+            // Clear info and input
+            infoDiv.textContent = '';
+            document.getElementById('geoAccession').value = '';
+        }
+
+        function selectRecommendedDataset() {
+            const select = document.getElementById('recommendedDatasets');
+            const selectedOption = select.options[select.selectedIndex];
+            const infoDiv = document.getElementById('datasetInfo');
+            
+            if (selectedOption.value) {
+                document.getElementById('geoAccession').value = selectedOption.value;
+                infoDiv.innerHTML = `<strong>✓</strong> ${selectedOption.dataset.description} (${selectedOption.dataset.samples} samples)`;
+                infoDiv.style.color = '#28a745';
+            } else {
+                document.getElementById('geoAccession').value = '';
+                infoDiv.textContent = '';
+            }
+        }
+
+        // Load datasets on page load
+        window.addEventListener('load', async function() {
+            await loadGEODatasets();
+            refreshDatasets();
+            updateRecommendedDatasets(); // Initialize with default disease
+        });
+    </script>
+</body>
+</html>
